@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo dos Objetos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Comic Neue', cursive;
+      background: linear-gradient(135deg, #FFD54F, #FF7043);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      padding: 30px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+    }
+
+    .game-intro {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      animation: bounce 1.5s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+
+    .login-form, .register-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-toggle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .form-toggle button {
+      background: none;
+      border: none;
+      color: #2196F3;
+      cursor: pointer;
+      margin: 0 10px;
+      font-size: 16px;
+      text-decoration: underline;
+    }
+
+    .form-toggle button.active {
+      font-weight: bold;
+      color: #FF5722;
+    }
+
+    input {
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px solid #2196F3;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .submit-button {
+      background-color: #FF5722;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+      background-color: #F44336;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .config-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      z-index: 1000;
+    }
+
+    .config-button:hover {
+      background-color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="/config" class="config-button">Configurações</a>
+
+  <div class="game-intro">
+    Atenção, pequeno aventureiro! Você consegue adivinhar o que está escondido? Cada forma, cada cor tem um segredo para contar! Entre ou registre-se para descobrir o mistério!
+  </div>
+
+  <div class="form-toggle">
+    <button id="loginToggle" class="active">Entrar</button>
+    <button id="registerToggle">Registrar</button>
+  </div>
+
+  <form class="login-form" id="loginForm">
+    <input type="text" id="loginUsername" placeholder="Nome de Usuário" required>
+    <input type="password" id="loginPassword" placeholder="Senha" required>
+    <button type="submit" class="submit-button">Entrar na Aventura!</button>
+  </form>
+
+  <form class="register-form hidden" id="registerForm">
+    <input type="text" id="registerUsername" placeholder="Escolha um Nome de Usuário" required>
+    <input type="password" id="registerPassword" placeholder="Crie uma Senha" required>
+    <input type="password" id="confirmPassword" placeholder="Confirme sua Senha" required>
+    <button type="submit" class="submit-button">Criar Conta Mágica!</button>
+  </form>
+
+
+  <script>
+    // Form Toggle Logic
+    const loginToggle = document.getElementById('loginToggle');
+    const registerToggle = document.getElementById('registerToggle');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    loginToggle.addEventListener('click', () => {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      loginToggle.classList.add('active');
+      registerToggle.classList.remove('active');
+    });
+
+    registerToggle.addEventListener('click', () => {
+      registerForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      registerToggle.classList.add('active');
+      loginToggle.classList.remove('active');
+    });
+
+    // Login Form Submit
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome: username,
+            senha: password
+          })
+        });
+
+        if (response.ok) {
+          alert('Login bem-sucedido! Bem-vindo, aventureiro!');
+          window.location.href = '/config';
+        } else {
+          alert('Ops! Usuário ou senha incorretos. Tente novamente!');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Ocorreu um erro. Tente novamente.');
+      }
+    });
+
+    // Register Form Submit
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('registerUsername').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('As senhas não coincidem. Tente novamente!');
+        return;
+      }
+
+      try {
+        const response = await fetch('/auth/registrar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome: username,
+            senha: password
+          })
+        });
+
+        if (response.ok) {
+          alert('Registro bem-sucedido! Faça login para começar sua aventura!');
+          // Alternar para o formulário de login
+          loginToggle.click();
+        } else {
+          const errorData = await response.json();
+          alert(`Erro no registro: ${errorData.error || 'Tente novamente'}`);
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Ocorreu um erro no registro. Tente novamente.');
+      }
+    });
+
+  </script>
+
+      </body>
+
+</html>
