@@ -43,6 +43,24 @@
       display: none;
     }
 
+    .back-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #FF5722;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: hand;
+      font-size: 16px;
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background-color: #F44336;
+    }
+
     .game-intro {
       background-color: #4CAF50;
       color: white;
@@ -132,11 +150,13 @@
   </style>
 </head>
 <body>
+
 <div id="gameFrame">
+  <button id="backToLogin" class="back-button">Voltar para Login</button>
   <iframe
           src="/AdivinheOObjetoHTML/AdivinheOObjeto.html"
           width="100%"
-          height="500"
+          height="800"
           frameborder="0"
           allowfullscreen
           allow="autoplay; encrypted-media; fullscreen"
@@ -168,98 +188,56 @@
     <input type="password" id="confirmPassword" placeholder="Confirme sua Senha" required>
     <button type="submit" class="submit-button">Criar Conta Mágica!</button>
   </form>
+</div>
 
-  <script src="/AdivinheOObjetoHTML/AdivinheOObjeto.js"></script>
-  <script>
-    // Form Toggle Logic
-    const loginToggle = document.getElementById('loginToggle');
-    const registerToggle = document.getElementById('registerToggle');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const gameFrame = document.getElementById('gameFrame');
+<script>
+  const loginToggle = document.getElementById('loginToggle');
+  const registerToggle = document.getElementById('registerToggle');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const gameFrame = document.getElementById('gameFrame');
 
-    loginToggle.addEventListener('click', () => {
-      loginForm.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-      loginToggle.classList.add('active');
-      registerToggle.classList.remove('active');
-    });
+  loginToggle.addEventListener('click', () => {
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    loginToggle.classList.add('active');
+    registerToggle.classList.remove('active');
+  });
 
-    registerToggle.addEventListener('click', () => {
-      registerForm.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-      registerToggle.classList.add('active');
-      loginToggle.classList.remove('active');
-    });
+  registerToggle.addEventListener('click', () => {
+    registerForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+    registerToggle.classList.add('active');
+    loginToggle.classList.remove('active');
+  });
 
-    // Login Form Submit
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('loginUsername').value;
-      const password = document.getElementById('loginPassword').value;
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
 
-      try {
-        const response = await fetch('/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nome: username,
-            senha: password
-          })
-        });
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: username, senha: password })
+      });
 
-        if (response.ok) {
-          alert('Login bem-sucedido! Bem-vindo, aventureiro!');
-          // Show game frame instead of redirecting
-          gameFrame.style.display = 'block';
-        } else {
-          alert('Ops! Usuário ou senha incorretos. Tente novamente!');
-        }
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Ocorreu um erro. Tente novamente.');
+      if (response.ok) {
+        alert('Login bem-sucedido! Bem-vindo, aventureiro!');
+        gameFrame.style.display = 'block';
+      } else {
+        alert('Ops! Usuário ou senha incorretos. Tente novamente!');
       }
-    });
+    } catch (error) {
+      alert('Ocorreu um erro. Tente novamente.');
+    }
+  });
 
-    // Register Form Submit
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('registerUsername').value;
-      const password = document.getElementById('registerPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+  document.getElementById('backToLogin').addEventListener('click', () => {
+    gameFrame.style.display = 'none';
+  });
+</script>
 
-      if (password !== confirmPassword) {
-        alert('As senhas não coincidem. Tente novamente!');
-        return;
-      }
-
-      try {
-        const response = await fetch('/auth/registrar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nome: username,
-            senha: password
-          })
-        });
-
-        if (response.ok) {
-          alert('Registro bem-sucedido! Faça login para começar sua aventura!');
-          // Alternar para o formulário de login
-          loginToggle.click();
-        } else {
-          const errorData = await response.json();
-          alert(`Erro no registro: ${errorData.error || 'Tente novamente'}`);
-        }
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Ocorreu um erro no registro. Tente novamente.');
-      }
-    });
-  </script>
 </body>
 </html>
