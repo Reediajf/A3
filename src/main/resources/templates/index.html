@@ -172,6 +172,7 @@
   </div>
 
   <div class="form-toggle">
+    <button id="JogarToggle">Jogar</button>
     <button id="loginToggle" class="active">Entrar</button>
     <button id="registerToggle">Registrar</button>
   </div>
@@ -196,6 +197,14 @@
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   const gameFrame = document.getElementById('gameFrame');
+  const JogarToggle = document.getElementById('JogarToggle');
+
+  JogarToggle.addEventListener('click', () => {
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    loginToggle.classList.add('active');
+    registerToggle.classList.remove('active');
+  });
 
   loginToggle.addEventListener('click', () => {
     loginForm.classList.remove('hidden');
@@ -234,10 +243,31 @@
     }
   });
 
+  document.getElementById('JogarToggle').addEventListener('click', async function() {
+    try {
+      const response = await fetch('/auth/iniciar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+
+      if (response.ok) {
+        gameFrame.style.display = 'block';
+      } else {
+        alert('Erro ao iniciar o jogo.');
+      }
+    } catch (error) {
+      alert('Ocorreu um erro. Tente novamente.');
+    }
+  });
+
   document.getElementById('backToLogin').addEventListener('click', () => {
+    const iframe = document.querySelector("#gameFrame iframe");
+    if (iframe) {
+      iframe.src = iframe.src;
+    }
     gameFrame.style.display = 'none';
   });
 </script>
-
 </body>
 </html>
