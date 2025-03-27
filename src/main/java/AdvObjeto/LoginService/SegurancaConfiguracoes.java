@@ -3,38 +3,68 @@ package AdvObjeto.LoginService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.Arrays;
 
 @Configuration
-public class SegurancaConfiguracoes implements WebMvcConfigurer {
+@EnableWebSecurity
+public class SegurancaConfiguracoes {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/config").authenticated()
-                        .anyRequest().permitAll()
+                // Desabilita CSRF
+                .csrf(AbstractHttpConfigurer::disable)
+
+                // Configura CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Configura cabeçalhos para permitir iframes
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin ())
                 )
-                .httpBasic(withDefaults())
-                .logout(logout -> logout.permitAll());
+
+                // Configura autorização de requisições
+                .authorizeHttpRequests(auth -> auth
+                        // Permite acesso público a recursos estáticos
+                        .requestMatchers("/", "/index.html", "/error").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+                        .requestMatchers("/AdivinheOObjetoHTML/**").permitAll()
+                        .requestMatchers("/*.html", "/*.js", "/*.css").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+
+                        // Permite todos os outros acessos
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8080")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+    // Bean para codificação de senhas
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // Configuração CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
