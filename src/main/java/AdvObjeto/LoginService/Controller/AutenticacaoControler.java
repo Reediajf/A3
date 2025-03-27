@@ -1,6 +1,8 @@
 package AdvObjeto.LoginService.Controller;
 
+import AdvObjeto.LoginService.Model.Jogador;
 import AdvObjeto.LoginService.Model.Usuario;
+import AdvObjeto.LoginService.Service.JogadorService;
 import AdvObjeto.LoginService.Service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,11 @@ import java.util.Optional;
 public class AutenticacaoControler {
     private final UsuarioService usuarioService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JogadorService jogadorService;
 
-    public AutenticacaoControler(UsuarioService usuarioService) {
+    public AutenticacaoControler( UsuarioService usuarioService, JogadorService jogadorService ) {
         this.usuarioService = usuarioService;
+        this.jogadorService = jogadorService;
     }
 
     @PostMapping("/registrar")
@@ -42,6 +46,14 @@ public class AutenticacaoControler {
             return ResponseEntity.ok(usuarioLogin.get());
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/iniciar")
+    public ResponseEntity<Jogador> iniciar( @RequestBody Jogador jogador) {
+        String nome = jogadorService.gerarNome ();
+        jogador.setNome(nome);
+        jogador.setPontuacao(0);
+        return ResponseEntity.ok(jogador);
     }
 
 }
