@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +30,8 @@ public class SegurancaConfiguracoes {
 
                 // Configura cabeçalhos para permitir iframes
                 .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin ())
+                        .frameOptions( HeadersConfigurer.FrameOptionsConfig::disable )
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors *"))
                 )
 
                 // Configura autorização de requisições
@@ -61,7 +63,7 @@ public class SegurancaConfiguracoes {
         configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
