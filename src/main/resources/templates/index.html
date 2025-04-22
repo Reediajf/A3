@@ -138,7 +138,7 @@
       border: none;
       padding: 8px 15px;
       border-radius: 5px;
-      cursor: pointer;
+      cursor: hand;
       font-size: 14px;
       text-decoration: none;
       z-index: 1000;
@@ -161,11 +161,13 @@
           allowfullscreen
           allow="autoplay; encrypted-media; fullscreen"
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+
   </iframe>
 </div>
 
 <div class="container">
-  <a href="/config" class="config-button">Configurações</a>
+  <a href="/setting.html" class="config-button">Configurações</a>
+
 
   <div class="game-intro">
     Atenção, pequeno aventureiro! Você consegue adivinhar o que está escondido? Cada forma, cada cor tem um segredo para contar! Entre ou registre-se para descobrir o mistério!
@@ -192,6 +194,7 @@
 </div>
 
 <script>
+
   const loginToggle = document.getElementById('loginToggle');
   const registerToggle = document.getElementById('registerToggle');
   const loginForm = document.getElementById('loginForm');
@@ -242,6 +245,36 @@
       alert('Ocorreu um erro. Tente novamente.');
     }
   });
+
+  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById('registerUsername').value;
+    const password = document.getElementById('registerPassword').value;
+    const passwordConfirm = document.getElementById('confirmPassword').value;
+
+    if (password === passwordConfirm) {
+      try {
+        const response = await fetch('/auth/registrar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome: username, senha: password })
+        });
+
+        if (response.ok) {
+          alert('Registro concluído! Bem-vindo, aventureiro!');
+          gameFrame.style.display = 'none';
+        }
+      } catch (error) {
+        alert('Ocorreu um erro. Tente novamente.');
+      }
+    } else {
+      alert('As senhas não conferem.');
+    }
+  });
+
+
+
+
 
   document.getElementById('JogarToggle').addEventListener('click', async function() {
     try {

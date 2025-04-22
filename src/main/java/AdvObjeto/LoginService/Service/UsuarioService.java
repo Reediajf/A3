@@ -5,6 +5,7 @@ import AdvObjeto.LoginService.Repository.UsuarioRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,8 +22,28 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
+     public Optional<Usuario> findByNome (String Nome) {
+        return usuarioRepository.findByNome(Nome);
+     }
 
-    public Optional<Usuario> findByNome( String nome) {
-        return usuarioRepository.findByNome(nome);
+    public void alterarUsuario(long id, String nome, int pontuacao) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+
+        usuario.setNome(nome);
+        usuario.setPontuacao(pontuacao);
+
+        usuarioRepository.save(usuario);
+    }
+
+
+
+    public void deletarUsuario(long id) {
+        usuarioRepository.deleteById(id);
+    }
+
+    public List<Usuario> findAll() {
+        return usuarioRepository.findAll();
     }
 }
+

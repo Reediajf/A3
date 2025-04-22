@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Configurações - Jogo dos Objetos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #FFD54F, #FF7043);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-top: 50px;
+            width: 95%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF5722;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 2px solid #2196F3;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 2px;
+        }
+
+        .mostrar-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .alterar-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .deletar-btn {
+            background-color: #F44336;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .voltar-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #FF5722;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .voltar-button:hover {
+            background-color: #E64A19;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #2196F3;
+        }
+
+        .modal-content .save-btn {
+            background-color: #2196F3;
+            color: white;
+            width: 100%;
+        }
+
+        .modal-content .close-btn {
+            background-color: #F44336;
+            color: white;
+            width: 100%;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<a href="../templates/index.html" class="voltar-button">← Voltar</a>
+
+<div class="container">
+    <h1>Configurações dos Usuários</h1>
+    <button class="mostrar-btn" onclick="mostrarUsuarios()">Mostrar Usuários</button>
+
+    <table id="tabelaUsuarios" style="display: none;">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Pontuação</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody id="tabelaCorpo"></tbody>
+    </table>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h2>Editar Usuário</h2>
+        <input type="hidden" id="editId" />
+        <label>Nome:</label>
+        <input type="text" id="editNome" />
+        <label>Pontuação:</label>
+        <input type="number" id="editPontuacao" />
+        <button class="save-btn" onclick="salvarAlteracoes()">Salvar</button>
+        <button class="close-btn" onclick="fecharModal()">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    async function mostrarUsuarios() {
+        try {
+            const response = await fetch('/config');
+            if (!response.ok) throw new Error('Erro na resposta da API');
+
+            const usuarios = await response.json();
+            const tabela = document.getElementById('tabelaUsuarios');
+            const corpo = document.getElementById('tabelaCorpo');
+            corpo.innerHTML = '';
+
+            usuarios.forEach(usuario => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+            <td>${usuario.id}</td>
+            <td>${usuario.nome}</td>
+            <td>${usuario.pontuacao}</td>
+            <td>
+              <button class="alterar-btn" onclick="abrirModal(${usuario.id}, '${usuario.nome}', ${usuario.pontuacao})">Alterar</button>
+              <button class="deletar-btn" onclick="deletarUsuario(${usuario.id})">Deletar</button>
+            </td>
+          `;
+                corpo.appendChild(linha);
+            });
+
+            tabela.style.display = 'table';
+        } catch (error) {
+            alert('Erro ao buscar usuários: ' + error.message);
+        }
+    }
+
+    async function deletarUsuario(id) {
+        if (!confirm(`Deseja deletar o usuário com ID ${id}?`)) return;
+
+        try {
+            const response = await fetch(`/config/deletar?id=${id}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert('Usuário deletado com sucesso!');
+                mostrarUsuarios();
+            } else {
+                alert('Erro ao deletar usuário.');
+            }
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    }
+
+    function abrirModal(id, nome, pontuacao) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNome').value = nome;
+        document.getElementById('editPontuacao').value = pontuacao;
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function fecharModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function salvarAlteracoes() {
+        const id = document.getElementById('editId').value;
+        const nome = document.getElementById('editNome').value;
+        const pontuacao = document.getElementById('editPontuacao').value;
+
+
+        try {
+            const response = await fetch(`/config/alterar?id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, pontuacao})
+            });
+
+            if (response.ok) {
+                alert('Alterações salvas!');
+                fecharModal();
+                mostrarUsuarios();
+            } else {
+                alert('Erro ao salvar alterações.');
+            }
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    }
+</script>
+</body>
+</html>

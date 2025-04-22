@@ -27,21 +27,9 @@ public class AutenticacaoControler {
         this.jogadorService = jogadorService;
     }
 
-    @PostMapping("/registrar")
-    public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
-        try {
-            Usuario usuarioRegistrado = usuarioService.registrarUsuario(usuario);
-            return ResponseEntity.ok(usuarioRegistrado);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status( HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body( Map.of("error", e.getMessage()));
-        }
-    }
-
     @PostMapping("/login")
     public ResponseEntity<Usuario> login(@RequestBody Usuario usuario) {
-        Optional<Usuario> usuarioLogin = usuarioService.findByNome ( usuario.getNome() );
+        Optional<Usuario> usuarioLogin = usuarioService.findByNome( usuario.getNome () );
         if (usuarioLogin.isPresent() && passwordEncoder.matches(usuario.getSenha(), usuarioLogin.get().getSenha())) {
             return ResponseEntity.ok(usuarioLogin.get());
         }
@@ -54,6 +42,18 @@ public class AutenticacaoControler {
         jogador.setNome(nome);
         jogador.setPontuacao(0);
         return ResponseEntity.ok(jogador);
+    }
+
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
+        try {
+            Usuario usuarioRegistrado = usuarioService.registrarUsuario(usuario);
+            return ResponseEntity.ok(usuarioRegistrado);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status( HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body( Map.of("error", e.getMessage()));
+        }
     }
 
 }
