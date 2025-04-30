@@ -43,7 +43,7 @@ public class SegurancaConfiguracoes {
                         .requestMatchers("/static/**").permitAll()
                         .requestMatchers("/AdivinheOObjetoHTML/**").permitAll()
                         .requestMatchers("/*.html", "/*.js", "/*.css").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 // Aqui você ativa login padrão (formulário simples)
