@@ -8,41 +8,33 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/config")
+@RequestMapping("/usuarios")
 public class ConfigController {
 
-
-    UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
     public ConfigController(UsuarioService usuarioService) {
-
         this.usuarioService = usuarioService;
     }
 
     @GetMapping
     public List<UsuarioDTO> mostrarUsuarios() {
-        return usuarioService.findAll().stream()
+        return usuarioService.listarUsuarios().stream()
                 .map(usuario -> new UsuarioDTO(
                         usuario.getId(),
                         usuario.getNome(),
                         usuario.getPontuacao()
                 ))
-                .collect( Collectors.toList());
+                .collect(Collectors.toList());
     }
 
-
-
-    @PostMapping("/deletar")
-    public void deletarUsuario(@RequestParam long id) {
+    @DeleteMapping("/{id}")
+    public void deletarUsuario(@PathVariable long id) {
         usuarioService.deletarUsuario(id);
     }
 
-
-    @PutMapping("/alterar")
-    public void alterarUsuario(@RequestParam long id, @RequestBody UsuarioDTO dto) {
+    @PutMapping("/{id}")
+    public void alterarUsuario(@PathVariable long id, @RequestBody UsuarioDTO dto) {
         usuarioService.alterarUsuario(id, dto.getNome(), dto.getPontuacao());
     }
-
-
-
 }
