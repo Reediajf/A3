@@ -9,12 +9,12 @@ import java.util.Random;
 
 @Service
 public class JogadorService {
-    private ArrayList<String> primeiro_nome = new ArrayList<>(Arrays.asList(
+    private ArrayList<String> primeiroNome = new ArrayList<>(Arrays.asList(
             "Leão", "Rato", "Azul", "Estrela", "Nuvem", "Brisa", "Tigre", "Lobo", "Falcão", "Sol",
             "Lua", "Pinguim", "Mar", "Fogo", "Neve", "Vento", "Sombra", "Espada", "Pérola", "Flor"
     ));
 
-    private ArrayList<String> ultimo_nome = new ArrayList<>( Arrays.asList(
+    private ArrayList<String> ultimoNome = new ArrayList<>( Arrays.asList(
             "Dourado", "Prateado", "Veloz", "Brilhante", "Saltitante", "Misterioso", "Cantante", "Sorridente", "Voador", "Encantado",
             "Corajoso", "Brincalhão", "Saltador", "Feroz", "Alegre", "Sonhador", "Luminoso", "Mágico", "Radiante", "Vibrante"
     ));
@@ -28,14 +28,14 @@ public class JogadorService {
     public String gerarNome() {
         int random = new Random().nextInt(1, 2);
         if (random == 0) {
-            nome = primeiro_nome.get(random);
-            sobrenome = ultimo_nome.get(random);
+            nome = primeiroNome.get(random);
+            sobrenome = ultimoNome.get(random);
             nomeFinal = nome + " " + sobrenome;
 
             return nomeFinal;
         } else {
-            nome = primeiro_nome.get(random);
-            sobrenome = ultimo_nome.get(random);
+            nome = ultimoNome.get(random);
+            sobrenome = primeiroNome.get(random);
             nomeFinal = nome + " " + sobrenome;
 
             return nomeFinal;

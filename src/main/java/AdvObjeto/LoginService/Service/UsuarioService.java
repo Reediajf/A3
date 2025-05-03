@@ -2,6 +2,7 @@ package AdvObjeto.LoginService.Service;
 
 import AdvObjeto.LoginService.Model.Usuario;
 import AdvObjeto.LoginService.Repository.UsuarioRepository;
+import org.hibernate.annotations.processing.Find;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,13 +37,26 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public void salvarPontuacao (long id, int pontuacao) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+
+        usuario.setPontuacao(usuario.getPontuacao() + pontuacao );
+
+        usuarioRepository.save(usuario);
+
+    }
 
 
     public void deletarUsuario(long id) {
         usuarioRepository.deleteById(id);
     }
 
-    public List<Usuario> findAll() {
+    public List<Usuario> mostrarPontuacao() {
         return usuarioRepository.findAll();
     }
 }
