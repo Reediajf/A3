@@ -1,40 +1,71 @@
-package AdvObjeto.LoginService.Controller;
+    package AdvObjeto.LoginService.Controller;
 
-import AdvObjeto.LoginService.Repository.UsuarioRepository;
-import AdvObjeto.LoginService.Service.UsuarioService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+    import AdvObjeto.LoginService.DTO.UsuarioDTO;
+    import AdvObjeto.LoginService.Model.Jogador;
+    import AdvObjeto.LoginService.Model.Usuario;
+    import AdvObjeto.LoginService.Service.JogadorService;
+    import AdvObjeto.LoginService.Service.UsuarioService;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+    import java.util.HashMap;
+    import java.util.Map;
 
-@Controller
-public class GameContoller {
+    @Controller
+    @RequestMapping("/jogo")
+    @CrossOrigin(origins = "*")
+    public class GameContoller {
 
-    private UsuarioService usuarioService;
-    private UsuarioRepository usuarioRepository;
+        private UsuarioService usuarioService;
+        private final JogadorService jogadorService;
 
-    public GameContoller(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
-        this.usuarioService = usuarioService;
-        this.usuarioRepository = usuarioRepository;
-    }
+        public GameContoller(UsuarioService usuarioService, JogadorService jogadorService) {
+            this.usuarioService = usuarioService;
+            this.jogadorService = jogadorService;
+        }
 
-    @GetMapping("/jogo")
-    public String jogo() {
-        return "forward:/AdivinheOObjetoHTML/AdivinheOObjeto.html";
-    }
+        @GetMapping("/jogo")
+        public String jogo() {
+            return "forward:/AdivinheOObjetoHTML/AdivinheOObjeto.html";
+        }
 
-    @PostMapping ("/pontuacao")
-    public ResponseEntity<String> receberPontuacao( @RequestBody Long id, int pontuacao) {
+        @PostMapping("/iniciar")
+        public ResponseEntity<Jogador> iniciar(@RequestBody Jogador jogador) {
+            String nome = jogadorService.gerarNome ();
+            jogador.setNome(nome);
+            jogador.setPontuacao(0);
+            return ResponseEntity.ok(jogador);
+        }
+
+        @PostMapping("/registrar")
+        public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
+            try {
+                Usuario usuarioRegistrado = usuarioService.registrarUsuario(usuario);
+                return ResponseEntity.ok(usuarioRegistrado);
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status( HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body( Map.of("error", e.getMessage()));
+            }
+        }
+
+        @PostMapping("/pontuacao")
+        public ResponseEntity<?> salvarPontuacao(
+                @RequestParam("id") Long id,
+                @RequestParam("pontuacao") Integer pontuacao) {
+
             usuarioService.salvarPontuacao(id, pontuacao);
-            return ResponseEntity.ok("Pontuação recebida com sucesso!");
-    }
+            return ResponseEntity.ok().build();
+        }
 
-    @GetMapping("/mostrarpontuacao")
-    public void mostrarPontuacao() {
-        usuarioService.mostrarPontuacao();
+
+        @GetMapping("/mostrarpontuacao")
+        public void mostrarPontuacao() {
+            usuarioService.mostrarPontuacao();
+        }
     }
-}
 
 
 

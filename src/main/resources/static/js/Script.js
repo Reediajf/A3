@@ -12,30 +12,6 @@ const registerForm = document.getElementById('registerForm');
 const gameFrame = document.getElementById('gameFrame');
 const JogarToggle = document.getElementById('JogarToggle');
 
-/**
- * Cria um efeito visual de onda sonora ao clicar em um elemento
- * @param {HTMLElement} element - O elemento que recebe o efeito
- */
-function createSoundEffect(element) {
-    const soundWave = document.createElement('div');
-    soundWave.classList.add('sound-wave');
-    element.appendChild(soundWave);
-
-    // Remove o efeito após 1 segundo
-    setTimeout(() => {
-        if (soundWave && soundWave.parentNode) {
-            soundWave.parentNode.removeChild(soundWave);
-        }
-    }, 1000);
-}
-
-// Adiciona efeitos sonoros visuais a todos os botões
-document.querySelectorAll('button').forEach(button => {
-    button.addEventListener('click', function() {
-        createSoundEffect(this);
-    });
-});
-
 // Event Listener para o botão Jogar
 JogarToggle.addEventListener('click', () => {
     loginForm.classList.remove('hidden');
@@ -44,8 +20,7 @@ JogarToggle.addEventListener('click', () => {
     registerToggle.classList.remove('active');
     JogarToggle.classList.add('active');
 
-    // Remove a classe active após 500ms para efeito visual
-    setTimeout(() => JogarToggle.classList.remove('active'), 500);
+    setTimeout(() => JogarToggle.classList.remove('active'), 5000);
 });
 
 // Event Listener para o botão Login
@@ -67,7 +42,7 @@ registerToggle.addEventListener('click', () => {
 });
 
 // Processa o formulário de login
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
+loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
@@ -80,6 +55,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         });
 
         if (response.ok) {
+            const data = await response.json();
+
+            localStorage.setItem('usuarioId', data.id);
+            localStorage.setItem('usuarioNome', data.nome);
+            localStorage.setItem('pontuacao', 0); // inicia pontuação zerada
+
             alert('Uhuuul! 🎉 Login bem-sucedido! Bem-vindo, aventureiro!');
             gameFrame.style.display = 'block';
         } else {
@@ -93,7 +74,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 });
 
 // Processa o formulário de registro
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
+registerForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const username = document.getElementById('registerUsername').value;
     const password = document.getElementById('registerPassword').value;
@@ -101,7 +82,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
     if (password === passwordConfirm) {
         try {
-            const response = await fetch('/auth/registrar', {
+            const response = await fetch('/jogo/registrar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nome: username, senha: password })
@@ -121,16 +102,17 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     }
 });
 
-// Inicia o jogo
-document.getElementById('JogarToggle').addEventListener('click', async function() {
+// Inicia o jogo — reseta pontuação no localStorage
+JogarToggle.addEventListener('click', async function() {
     try {
-        const response = await fetch('/auth/iniciar', {
+        const response = await fetch('/jogo/iniciar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({})
         });
 
         if (response.ok) {
+            localStorage.setItem('pontuacao', 0); // zera pontuação toda vez que iniciar o jogo
             gameFrame.style.display = 'block';
         } else {
             alert('Ops! Não conseguimos iniciar o jogo. Vamos tentar de novo?');
@@ -140,13 +122,48 @@ document.getElementById('JogarToggle').addEventListener('click', async function(
     }
 });
 
-// Volta para a tela de login a partir do jogo
-document.getElementById('backToLogin').addEventListener('click', () => {
-    const iframe = document.querySelector("#gameFrame iframe");
-    if (iframe) {
-        // Recarrega o iframe para reiniciar o jogo
-        iframe.src = iframe.src;
+// Função para atualizar a pontuação no localStorage — chame essa função do seu jogo Godot
+function atualizarPontuacao(novaPontuacao) {
+    localStorage.setItem('pontuacao', novaPontuacao);
+}
+
+document.getElementById('backToLogin').addEventListener('click', async function () {
+    const iframe = gameFrame.querySelector("iframe");
+
+    const usuarioId = localStorage.getItem('usuarioId');
+    const pontuacao = localStorage.getItem('pontuacao');
+
+    if (!usuarioId || pontuacao === null) {
+        alert('Dados do usuário ou pontuação não encontrados para salvar.');
+        return;
     }
+
+    // Monta o corpo no formato x-www-form-urlencoded
+    const body = `id=${encodeURIComponent(usuarioId)}&pontuacao=${encodeURIComponent(pontuacao)}`;
+
+    try {
+        const response = await fetch('/jogo/pontuacao', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            credentials: 'include',
+            body: body
+        });
+
+        if (response.ok) {
+            alert('Pontuação salva com sucesso!');
+            // Limpa o localStorage após salvar
+            localStorage.clear();
+        } else {
+            alert('Ops! Não conseguimos salvar. Vamos tentar de novo?');
+        }
+    } catch (error) {
+        alert('Ops! Algo deu errado. Vamos tentar novamente?');
+    }
+
+    if (iframe) {
+        iframe.src = iframe.src.split("?")[0] + "?" + new Date().getTime();
+    }
+
     gameFrame.style.display = 'none';
 });
 
@@ -162,11 +179,9 @@ function createRandomElements() {
         const type = types[Math.floor(Math.random() * types.length)];
         element.classList.add('floating-element', type);
 
-        // Posição aleatória
         element.style.top = `${Math.random() * 100}%`;
         element.style.left = `${Math.random() * 100}%`;
 
-        // Animação levemente diferente para cada elemento
         element.style.animationDuration = `${3 + Math.random() * 4}s`;
         element.style.animationDelay = `${Math.random() * 2}s`;
 

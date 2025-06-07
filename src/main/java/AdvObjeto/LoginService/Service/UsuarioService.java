@@ -44,9 +44,7 @@ public class UsuarioService {
     public void salvarPontuacao (long id, int pontuacao) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
-
         usuario.setPontuacao(usuario.getPontuacao() + pontuacao );
-
         usuarioRepository.save(usuario);
 
     }

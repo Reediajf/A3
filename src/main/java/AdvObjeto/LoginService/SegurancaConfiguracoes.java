@@ -18,7 +18,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 import java.util.Arrays;
 
 @Configuration
@@ -31,41 +30,37 @@ public class SegurancaConfiguracoes {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers
-                        .frameOptions( HeadersConfigurer.FrameOptionsConfig::disable)
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                         .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors *"))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Acesso à página de configuração somente com autenticação
-                        .requestMatchers("/setting.html/**","config/**").authenticated()
-
-                        // Libera todo o restante
-                        .requestMatchers("/", "/index.html", "/error", "/pontuacao").permitAll()
-                        .requestMatchers("/static/**").permitAll()
+                        // Libera arquivos estáticos primeiro
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/error", "/pontuacao", "/jogo/**").permitAll()
                         .requestMatchers("/AdivinheOObjetoHTML/**").permitAll()
                         .requestMatchers("/*.html", "/*.js", "/*.css").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/setting.html", "/config/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                // Aqui você ativa login padrão (formulário simples)
-                .formLogin( Customizer.withDefaults());
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder ();
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration ();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource ();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
@@ -78,7 +73,6 @@ public class SegurancaConfiguracoes {
                 .roles("ADMIN")
                 .build();
 
-        return new InMemoryUserDetailsManager (user);
+        return new InMemoryUserDetailsManager(user);
     }
-
 }
