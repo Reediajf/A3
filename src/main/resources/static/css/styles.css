@@ -308,7 +308,7 @@ input::placeholder {
 .back-button {
     position: absolute;
     top: 20px;
-    right: 20px;
+    right: 100px;
     background-color: var(--primary-color);
     color: white;
     border: none;

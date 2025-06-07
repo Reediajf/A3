@@ -1,6 +1,7 @@
 package AdvObjeto.LoginService.Model;
 
 
+import AdvObjeto.LoginService.Controller.AutenticacaoControler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,6 @@ public class Jogador {
     private String nome;
 
     private int pontuacao = 0;
+
 
 }
