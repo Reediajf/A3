@@ -1,32 +1,42 @@
-Plataforma EduPlay
-EduPlay é uma plataforma de jogos educativos desenvolvida para auxiliar educadores e estudantes no processo de aprendizagem de forma lúdica e interativa.
+🚀 Plataforma EduPlay
+EduPlay é uma plataforma de jogos educativos criada para auxiliar educadores e facilitar o aprendizado de crianças de forma divertida e interativa.
 
-Sobre a EduPlay
-A EduPlay oferece uma experiência divertida e educativa com jogos que ajudam na fixação de palavras e no desenvolvimento do vocabulário, especialmente para crianças. Um dos principais jogos da plataforma é o Adivinhe o Objeto, um jogo educativo que incentiva o reconhecimento e a memorização de palavras por meio de desafios interativos.
+🎯 Sobre a EduPlay
+EduPlay oferece uma experiência lúdica por meio de jogos que ajudam na fixação de palavras e no desenvolvimento do vocabulário.
 
-Funcionalidades principais
-Jogo Adivinhe o Objeto: ajuda crianças a aprenderem novas palavras através de pistas e imagens.
+O destaque da plataforma é o jogo:
 
-Interface simples e intuitiva para facilitar o uso por educadores e alunos.
+🎮 Adivinhe o Objeto
+Jogo educativo que incentiva o reconhecimento e memorização de palavras.
 
-Armazenamento das pontuações para acompanhamento do desempenho.
+Ideal para crianças aprenderem brincando.
 
-Tecnologias utilizadas
-Godot — Motor de jogos usado para desenvolvimento do jogo educativo.
+Utiliza pistas visuais e interativas.
 
-Spring Boot (Java) — Backend da aplicação, responsável pela lógica de negócios e gerenciamento dos dados.
+⚙ Tecnologias Utilizadas
+Tecnologia	Descrição
+Godot	Motor de jogos para o desenvolvimento do game.
+Spring Boot	Backend em Java, lógica e API REST.
+HTML/CSS/JS	Frontend responsivo e interativo.
+MySQL	Banco de dados, modelado com Workbench.
 
-HTML, CSS e JavaScript — Construção do frontend responsivo e interativo.
+🛠 Como Executar o Projeto
+Configurar banco de dados:
 
-MySQL Workbench — Gerenciamento e modelagem do banco de dados.
+Ajuste as credenciais do banco no arquivo application.properties.
 
-Como executar o projeto
-Configure o banco de dados MySQL.
+Configurar backend:
 
-Importe o backend Spring Boot na sua IDE preferida e configure as credenciais do banco de dados.
+Abra o projeto Spring Boot na sua IDE favorita.
 
-Compile e execute o backend.
+Executar backend:
 
-Abra o frontend (HTML/JS) em um navegador para acessar a plataforma EduPlay.
+bash
+Copiar
+Editar
+./mvnw spring-boot:run
+Abrir frontend:
 
-Divirta-se jogando e aprendendo!
+Abra os arquivos HTML/CSS/JS no navegador.
+
+🎉 Divirta-se aprendendo!
