@@ -149,7 +149,12 @@
     </style>
 </head>
 <body>
-<a href="../templates/index.html" class="voltar-button">← Voltar</a>
+
+<button class="voltar-button" onclick="window.location.href='/'">
+    ← Voltar
+</button>
+
+
 
 <div class="container">
     <h1>Configurações dos Usuários</h1>
@@ -184,7 +189,7 @@
 <script>
     async function mostrarUsuarios() {
         try {
-            const response = await fetch('/config');
+            const response = await fetch('/usuarios/usuarios');
             if (!response.ok) throw new Error('Erro na resposta da API');
 
             const usuarios = await response.json();
@@ -194,21 +199,42 @@
 
             usuarios.forEach(usuario => {
                 const linha = document.createElement('tr');
+                const nomeSeguro = usuario.nome.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); // prevenção XSS
+
                 linha.innerHTML = `
-            <td>${usuario.id}</td>
-            <td>${usuario.nome}</td>
-            <td>${usuario.pontuacao}</td>
-            <td>
-              <button class="alterar-btn" onclick="abrirModal(${usuario.id}, '${usuario.nome}', ${usuario.pontuacao})">Alterar</button>
-              <button class="deletar-btn" onclick="deletarUsuario(${usuario.id})">Deletar</button>
-            </td>
-          `;
+                    <td>${usuario.id}</td>
+                    <td>${nomeSeguro}</td>
+                    <td>${usuario.pontuacao}</td>
+                    <td>
+                        <button class="alterar-btn" onclick="abrirModal(${usuario.id}, '${nomeSeguro}', ${usuario.pontuacao})">Alterar</button>
+                        <button class="deletar-btn" onclick="deletarUsuario(${usuario.id})">Deletar</button>
+                    </td>
+                `;
                 corpo.appendChild(linha);
             });
 
             tabela.style.display = 'table';
         } catch (error) {
             alert('Erro ao buscar usuários: ' + error.message);
+        }
+    }
+
+    async function deletarUsuario(id) {
+        if (!confirm(`Deseja deletar o usuário com ID ${id}?`)) return;
+
+        try {
+            const response = await fetch(`/config/deletar?id=${id}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert('Usuário deletado com sucesso!');
+                mostrarUsuarios();
+            } else {
+                alert('Erro ao deletar usuário.');
+            }
+        } catch (error) {
+            alert('Erro: ' + error.message);
         }
     }
 

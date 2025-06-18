@@ -11,6 +11,7 @@
     import org.springframework.web.bind.annotation.*;
 
     import java.util.HashMap;
+    import java.util.List;
     import java.util.Map;
 
     @Controller
@@ -62,9 +63,11 @@
 
 
         @GetMapping("/mostrarpontuacao")
-        public void mostrarPontuacao() {
-            usuarioService.mostrarPontuacao();
+        public ResponseEntity<List<UsuarioDTO>> mostrarPontuacao() {
+            List<UsuarioDTO> ranking = usuarioService.listarUsuariosOrdenadosPorPontuacao();
+            return ResponseEntity.ok(ranking);
         }
+
     }
 
 

@@ -1,10 +1,4 @@
-/**
- * Script principal para o Jogo dos Objetos
- * Responsável por controlar a navegação entre formulários,
- * autenticação de usuários e efeitos visuais
- */
 
-// Elementos do DOM
 const loginToggle = document.getElementById('loginToggle');
 const registerToggle = document.getElementById('registerToggle');
 const loginForm = document.getElementById('loginForm');
@@ -12,7 +6,7 @@ const registerForm = document.getElementById('registerForm');
 const gameFrame = document.getElementById('gameFrame');
 const JogarToggle = document.getElementById('JogarToggle');
 
-// Event Listener para o botão Jogar
+
 JogarToggle.addEventListener('click', () => {
     loginForm.classList.remove('hidden');
     registerForm.classList.add('hidden');
@@ -23,7 +17,7 @@ JogarToggle.addEventListener('click', () => {
     setTimeout(() => JogarToggle.classList.remove('active'), 5000);
 });
 
-// Event Listener para o botão Login
+
 loginToggle.addEventListener('click', () => {
     loginForm.classList.remove('hidden');
     registerForm.classList.add('hidden');
@@ -32,7 +26,7 @@ loginToggle.addEventListener('click', () => {
     JogarToggle.classList.remove('active');
 });
 
-// Event Listener para o botão Registrar
+
 registerToggle.addEventListener('click', () => {
     registerForm.classList.remove('hidden');
     loginForm.classList.add('hidden');
@@ -41,7 +35,7 @@ registerToggle.addEventListener('click', () => {
     JogarToggle.classList.remove('active');
 });
 
-// Processa o formulário de login
+
 loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value;
@@ -59,9 +53,11 @@ loginForm.addEventListener('submit', async function(e) {
 
             localStorage.setItem('usuarioId', data.id);
             localStorage.setItem('usuarioNome', data.nome);
-            localStorage.setItem('pontuacao', 0); // inicia pontuação zerada
+            localStorage.setItem('pontuacao', 0);
 
             alert('Uhuuul! 🎉 Login bem-sucedido! Bem-vindo, aventureiro!');
+            const iframe = gameFrame.querySelector("iframe");
+            iframe.src = "/AdivinheOObjetoHTML/AdivinheOObjeto.html";
             gameFrame.style.display = 'block';
         } else {
             alert('Opa! 🤔 Nome ou senha incorretos. Tente novamente!');
@@ -73,7 +69,7 @@ loginForm.addEventListener('submit', async function(e) {
     }
 });
 
-// Processa o formulário de registro
+
 registerForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const username = document.getElementById('registerUsername').value;
@@ -90,7 +86,7 @@ registerForm.addEventListener('submit', async function(e) {
 
             if (response.ok) {
                 alert('Parabéns! 🌟 Sua conta mágica foi criada! Agora você pode entrar na aventura!');
-                loginToggle.click(); // Volta para a tela de login
+                loginToggle.click();
             }
         } catch (error) {
             alert('Ops! Algo deu errado. Vamos tentar novamente?');
@@ -102,7 +98,7 @@ registerForm.addEventListener('submit', async function(e) {
     }
 });
 
-// Inicia o jogo — reseta pontuação no localStorage
+
 JogarToggle.addEventListener('click', async function() {
     try {
         const response = await fetch('/jogo/iniciar', {
@@ -112,7 +108,9 @@ JogarToggle.addEventListener('click', async function() {
         });
 
         if (response.ok) {
-            localStorage.setItem('pontuacao', 0); // zera pontuação toda vez que iniciar o jogo
+            localStorage.setItem('pontuacao', 0);
+            const iframe = gameFrame.querySelector("iframe");
+            iframe.src = "/AdivinheOObjetoHTML/AdivinheOObjeto.html";
             gameFrame.style.display = 'block';
         } else {
             alert('Ops! Não conseguimos iniciar o jogo. Vamos tentar de novo?');
@@ -122,11 +120,6 @@ JogarToggle.addEventListener('click', async function() {
     }
 });
 
-// Função para atualizar a pontuação no localStorage — chame essa função do seu jogo Godot
-function atualizarPontuacao(novaPontuacao) {
-    localStorage.setItem('pontuacao', novaPontuacao);
-}
-
 document.getElementById('backToLogin').addEventListener('click', async function () {
     const iframe = gameFrame.querySelector("iframe");
 
@@ -135,10 +128,15 @@ document.getElementById('backToLogin').addEventListener('click', async function 
 
     if (!usuarioId || pontuacao === null) {
         alert('Dados do usuário ou pontuação não encontrados para salvar.');
+        if (iframe) {
+            iframe.src = iframe.src.split("?")[0] + "?" + new Date().getTime();
+        }
+
+        gameFrame.style.display = 'none';
+        iframe.src = "";
         return;
     }
 
-    // Monta o corpo no formato x-www-form-urlencoded
     const body = `id=${encodeURIComponent(usuarioId)}&pontuacao=${encodeURIComponent(pontuacao)}`;
 
     try {
@@ -151,7 +149,6 @@ document.getElementById('backToLogin').addEventListener('click', async function 
 
         if (response.ok) {
             alert('Pontuação salva com sucesso!');
-            // Limpa o localStorage após salvar
             localStorage.clear();
         } else {
             alert('Ops! Não conseguimos salvar. Vamos tentar de novo?');
@@ -167,9 +164,101 @@ document.getElementById('backToLogin').addEventListener('click', async function 
     gameFrame.style.display = 'none';
 });
 
-/**
- * Cria elementos decorativos flutuantes aleatórios
- */
+document.addEventListener("DOMContentLoaded", function () {
+    const rankingBtn = document.getElementById("rankingBtn");
+    const rankingContainer = document.getElementById("rankingContainer");
+    const rankingTableBody = document.querySelector("#rankingTable tbody");
+
+    let rankingVisivel = false;
+
+    rankingBtn.addEventListener("click", async () => {
+        if (rankingVisivel) {
+            esconderRanking();
+            return;
+        }
+
+        await mostrarRanking();
+    });
+
+    async function mostrarRanking() {
+        try {
+            rankingBtn.disabled = true;
+            rankingBtn.textContent = "🔄 Carregando...";
+
+            rankingContainer.classList.remove("hidden");
+            rankingTableBody.innerHTML = "<tr><td colspan='3' style='text-align: center; padding: 20px;'>🔄 Carregando ranking...</td></tr>";
+
+            const response = await fetch("/jogo/mostrarpontuacao", {
+                method: 'GET',
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            const usuarios = await response.json();
+
+            rankingTableBody.innerHTML = "";
+
+            if (!usuarios || usuarios.length === 0) {
+                rankingTableBody.innerHTML = "<tr><td colspan='3' style='text-align: center; padding: 20px;'>😊 Nenhum jogador no ranking ainda!</td></tr>";
+            } else {
+                const usuariosOrdenados = usuarios.sort((a, b) => (b.pontuacao || 0) - (a.pontuacao || 0));
+
+                usuariosOrdenados.forEach((usuario, index) => {
+                    const tr = document.createElement("tr");
+
+                    let posicaoTexto = index + 1;
+                    if (index === 0) posicaoTexto = "🥇 1º";
+                    else if (index === 1) posicaoTexto = "🥈 2º";
+                    else if (index === 2) posicaoTexto = "🥉 3º";
+                    else posicaoTexto = `${index + 1}º`;
+
+                    tr.innerHTML = `
+                        <td style="text-align: center; font-weight: bold;">${posicaoTexto}</td>
+                        <td style="padding-left: 10px;">${usuario.nome || 'Jogador Anônimo'}</td>
+                        <td style="text-align: center; font-weight: bold; color: #4CAF50;">${usuario.pontuacao || 0}</td>
+                    `;
+
+                    if (index < 3) {
+                        tr.style.backgroundColor = "#fff3cd";
+                    }
+
+                    rankingTableBody.appendChild(tr);
+                });
+            }
+
+            rankingVisivel = true;
+            rankingBtn.textContent = "❌ Fechar Ranking";
+
+        } catch (error) {
+            console.error("Erro ao carregar ranking:", error);
+            rankingTableBody.innerHTML = `<tr><td colspan='3' style="color: red; text-align: center; padding: 20px;">❌ Erro ao carregar ranking: ${error.message}</td></tr>`;
+        } finally {
+            rankingBtn.disabled = false;
+        }
+    }
+
+    function esconderRanking() {
+        rankingContainer.classList.add("hidden");
+        rankingVisivel = false;
+        rankingBtn.textContent = "🏆 Ver Ranking";
+        rankingBtn.disabled = false;
+    }
+
+    document.addEventListener('click', function(event) {
+        if (rankingVisivel &&
+            !rankingContainer.contains(event.target) &&
+            !rankingBtn.contains(event.target)) {
+            esconderRanking();
+        }
+    });
+});
+
 function createRandomElements() {
     const types = ['star', 'cloud'];
     const count = 5;
@@ -189,5 +278,4 @@ function createRandomElements() {
     }
 }
 
-// Cria elementos decorativos ao carregar a página
 window.addEventListener('load', createRandomElements);

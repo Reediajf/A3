@@ -17,7 +17,8 @@ public class ConfigController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping
+
+    @RequestMapping("/usuarios")
     public List<UsuarioDTO> mostrarUsuarios() {
         return usuarioService.listarUsuarios().stream()
                 .map(usuario -> new UsuarioDTO(

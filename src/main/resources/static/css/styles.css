@@ -130,7 +130,7 @@ body::before {
 }
 
 .game-intro {
-    position: static; /* Alterado de relative para static */
+    position: static;
     padding: 15px 25px;
     background-color: var(--accent-color);
     color: var(--dark-color);
@@ -142,7 +142,7 @@ body::before {
     animation: bounce 2s infinite;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     border: 3px solid var(--dark-color);
-    margin: 0 auto; /* Centraliza o elemento */
+    margin: 0 auto;
 }
 
 .form-toggle {
@@ -235,6 +235,49 @@ input::placeholder {
 }
 
 /* Botão de envio */
+ .ranking-button {
+     background: var(--secondary-color);
+     border: none;
+     border-radius: 15px;
+     color: white;
+     cursor: pointer;
+     padding: 12px 20px;
+     font-size: 18px;
+     font-weight: bold;
+     font-family: 'Baloo 2', cursive;
+     box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+     transition: all 0.2s ease;
+     position: relative;
+     overflow: hidden;
+     text-decoration: none;
+     display: inline-block;
+     text-align: center;
+ }
+.ranking-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.ranking-button:hover::before {
+    left: 100%;
+}
+
+.ranking-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+}
+
+.ranking-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+
 .submit-button {
     background-color: var(--primary-color);
     color: white;

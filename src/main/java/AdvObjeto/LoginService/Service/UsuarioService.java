@@ -1,13 +1,13 @@
 package AdvObjeto.LoginService.Service;
 
+import AdvObjeto.LoginService.DTO.UsuarioDTO;
 import AdvObjeto.LoginService.Model.Usuario;
 import AdvObjeto.LoginService.Repository.UsuarioRepository;
-import org.hibernate.annotations.processing.Find;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
@@ -23,6 +23,10 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
+    public Optional<Usuario> findById(long id) {
+        return usuarioRepository.findById(id);
+    }
+
      public Optional<Usuario> findByNome (String Nome) {
         return usuarioRepository.findByNome(Nome);
      }
@@ -54,8 +58,17 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
-    public List<Usuario> mostrarPontuacao() {
-        return usuarioRepository.findAll();
+
+    public List<UsuarioDTO> listarUsuariosOrdenadosPorPontuacao() {
+        return usuarioRepository.findAll().stream()
+                .sorted((u1, u2) -> Integer.compare(u2.getPontuacao(), u1.getPontuacao()))
+                .map(usuario -> new UsuarioDTO(
+                        usuario.getId(),
+                        usuario.getNome(),
+                        usuario.getPontuacao()
+                ))
+                .collect(Collectors.toList());
     }
+
 }
 

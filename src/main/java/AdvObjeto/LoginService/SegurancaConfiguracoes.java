@@ -34,12 +34,12 @@ public class SegurancaConfiguracoes {
                         .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors *"))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Libera arquivos estáticos primeiro
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
+                        .requestMatchers("/setting.html", "/config/**").authenticated()
                         .requestMatchers("/", "/index.html", "/error", "/pontuacao", "/jogo/**").permitAll()
                         .requestMatchers("/AdivinheOObjetoHTML/**").permitAll()
+                        .requestMatchers("/mostrarpontuacao").permitAll()
                         .requestMatchers("/*.html", "/*.js", "/*.css").permitAll()
-                        .requestMatchers("/setting.html", "/config/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(Customizer.withDefaults());
