@@ -1,4 +1,5 @@
 🚀 Plataforma EduPlay
+
 EduPlay é uma plataforma de jogos educativos criada para auxiliar educadores e facilitar o aprendizado de crianças de forma divertida e interativa.
 
 🎯 Sobre a EduPlay
